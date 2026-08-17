@@ -1,0 +1,73 @@
+# Build & run config for Zerops services (hostnames must match import YAML).
+# Docs: https://docs.zerops.io/zerops-yaml/specification
+
+zerops:
+  - setup: api
+    build:
+      base: nodejs@24
+      buildCommands:
+        - npm install
+        - npm run build -w @changelog-radar/shared
+        - npm run build -w @changelog-radar/mcp-server
+      deployFiles:
+        - package.json
+        - node_modules
+        - packages/shared/package.json
+        - packages/shared/dist
+        - mcp-server/package.json
+        - mcp-server/dist
+        - fixtures
+      cache:
+        - node_modules
+    deploy:
+      readinessCheck:
+        httpGet:
+          port: 8787
+          path: /health
+    run:
+      base: nodejs@24
+      ports:
+        - port: 8787
+          httpSupport: true
+      envVariables:
+        NODE_ENV: production
+        HOST: 0.0.0.0
+        CHANGELOG_RADAR_API_PORT: "8787"
+        # Set secrets in Zerops UI (or import envSecrets):
+        # BRIGHT_DATA_API_TOKEN, BRIGHT_DATA_COLLECTOR_*, CHAOS_PAGE_URL
+        # CHANGELOG_RADAR_MOCK=1 for fixture-only mode
+      start: node mcp-server/dist/http.js
+
+  - setup: web
+    build:
+      base: nodejs@24
+      envVariables:
+        # Baked into Next.js rewrites at build time (internal service DNS)
+        CHANGELOG_RADAR_API_URL: http://api:8787
+        NEXT_TELEMETRY_DISABLED: "1"
+      buildCommands:
+        - npm install
+        - npm run build -w @changelog-radar/web-ui
+      deployFiles:
+        - package.json
+        - node_modules
+        - web-ui
+      cache:
+        - node_modules
+    deploy:
+      readinessCheck:
+        httpGet:
+          port: 3000
+          path: /
+    run:
+      base: nodejs@24
+      ports:
+        - port: 3000
+          httpSupport: true
+      envVariables:
+        NODE_ENV: production
+        PORT: "3000"
+        HOSTNAME: 0.0.0.0
+        CHANGELOG_RADAR_API_URL: http://api:8787
+        NEXT_TELEMETRY_DISABLED: "1"
+      start: npm run start -w @changelog-radar/web-ui

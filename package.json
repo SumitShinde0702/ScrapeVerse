@@ -1,0 +1,26 @@
+{
+  "name": "changelog-radar",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Self-healing maintainer-page radar powered by Bright Data Scraper Studio",
+  "workspaces": [
+    "packages/*",
+    "mcp-server",
+    "web-ui"
+  ],
+  "scripts": {
+    "build": "npm run build -w @changelog-radar/shared && npm run build -w @changelog-radar/mcp-server && npm run build -w @changelog-radar/web-ui",
+    "dev:api": "npm run dev -w @changelog-radar/mcp-server",
+    "dev:ui": "npm run dev -w @changelog-radar/web-ui",
+    "dev:mcp": "npm run start -w @changelog-radar/mcp-server",
+    "prove:live": "npm run prove:live -w @changelog-radar/mcp-server",
+    "prove:heal": "npm run prove:heal -w @changelog-radar/mcp-server",
+    "typecheck": "npm run typecheck -w @changelog-radar/shared && npm run typecheck -w @changelog-radar/mcp-server"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "mime-db": "^1.54.0"
+  }
+}

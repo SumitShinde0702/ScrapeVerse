@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #070b14;
+  --bg-elevated: #0f1628;
+  --panel: #121a2f;
+  --line: #243152;
+  --text: #e8eefc;
+  --muted: #8fa0c0;
+  --signal: #3dff9a;
+  --signal-dim: #1fa866;
+  --heal: #ff9a3d;
+  --danger: #ff5c7a;
+  --steel: #7eb6ff;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-signal: var(--signal);
+  --color-signal-dim: var(--signal-dim);
+  --color-heal: var(--heal);
+  --color-danger: var(--danger);
+  --color-steel: var(--steel);
+  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: clip;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+@keyframes pulse-heal {
+  0%,
+  100% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 0 rgba(255, 154, 61, 0.45);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 0 8px rgba(255, 154, 61, 0);
+  }
+}
+
+.animate-heal {
+  animation: pulse-heal 1.4s ease-in-out infinite;
+}
+
+.landing-sky {
+  background:
+    radial-gradient(90rem 40rem at 110% -10%, rgba(62, 255, 154, 0.07), transparent 48%),
+    radial-gradient(50rem 28rem at -10% 80%, rgba(126, 182, 255, 0.06), transparent 52%),
+    var(--bg);
+}
+
+.landing-grain {
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.045;
+}
+
+@keyframes cue-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(6px);
+  }
+}
+
+.animate-cue {
+  animation: cue-pulse 2.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cue {
+    animation: none;
+  }
+}

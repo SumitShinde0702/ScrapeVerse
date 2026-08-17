@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "changelog-radar": {
+      "command": "npx",
+      "args": ["tsx", "mcp-server/src/mcp.ts"],
+      "env": {
+        "CHANGELOG_RADAR_MOCK": "1"
+      }
+    }
+  }
+}

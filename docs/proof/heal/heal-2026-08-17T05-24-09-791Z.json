@@ -1,0 +1,226 @@
+{
+  "before": {
+    "audit_id": "26b4307d-4dc1-4053-bc42-4fb2fcbdba51",
+    "started_at": "2026-08-17T05:24:09.767Z",
+    "finished_at": "2026-08-17T05:24:09.783Z",
+    "mode": "reactive",
+    "signals": [
+      {
+        "source": "npm",
+        "package_name": "lodash",
+        "url": "https://www.npmjs.com/package/lodash",
+        "latest_version": "4.17.21",
+        "published_at": "2021-02-20T00:00:00.000Z",
+        "deprecated_or_yanked": false,
+        "notice_text": null,
+        "changelog_excerpt": "4.17.21 — Prototype pollution fix in zipObjectDeep / set / unset related paths. Security patch recommended.",
+        "signal_tags": [
+          "security"
+        ]
+      },
+      {
+        "source": "npm",
+        "package_name": "express",
+        "url": "https://www.npmjs.com/package/express",
+        "latest_version": "4.21.2",
+        "published_at": null,
+        "deprecated_or_yanked": false,
+        "notice_text": null,
+        "changelog_excerpt": "Maintenance release. See GitHub releases for security advisories on older 4.x lines.",
+        "signal_tags": [
+          "security"
+        ]
+      },
+      {
+        "source": "chaos",
+        "package_name": "chaos-demo",
+        "url": "https://example.com/chaos-demo",
+        "latest_version": "2.4.1",
+        "published_at": null,
+        "deprecated_or_yanked": false,
+        "notice_text": "Security fix in 2.4.1: patched prototype pollution in config merge.",
+        "changelog_excerpt": "## 2.4.1\n- security: fix prototype pollution in mergeConfig\n- deprecate legacy unsafeEval option",
+        "signal_tags": [
+          "deprecation",
+          "security"
+        ]
+      }
+    ],
+    "bumps": [
+      {
+        "package_name": "lodash",
+        "current_version": "4.17.20",
+        "suggested_version": "4.17.21",
+        "reason": "maintainer notes mention a security fix; you are on 4.17.20, latest on npm is 4.17.21",
+        "source": "npm",
+        "signal_tags": [
+          "security"
+        ]
+      },
+      {
+        "package_name": "express",
+        "current_version": "4.18.2",
+        "suggested_version": "4.21.2",
+        "reason": "maintainer notes mention a security fix; you are on 4.18.2, latest on npm is 4.21.2",
+        "source": "npm",
+        "signal_tags": [
+          "security"
+        ]
+      },
+      {
+        "package_name": "chaos-demo",
+        "current_version": null,
+        "suggested_version": "2.4.1",
+        "reason": "maintainer notes mention a security fix; package or API is deprecated",
+        "source": "chaos",
+        "signal_tags": [
+          "deprecation",
+          "security"
+        ]
+      }
+    ],
+    "heal_events": [],
+    "health": {
+      "npm": "healthy",
+      "github_releases": "idle",
+      "chaos": "healthy"
+    },
+    "errors": []
+  },
+  "after": {
+    "audit_id": "fe5b67b9-c8ec-4ec4-8541-6a5cbc680055",
+    "started_at": "2026-08-17T05:24:09.784Z",
+    "finished_at": "2026-08-17T05:24:09.791Z",
+    "mode": "reactive",
+    "signals": [
+      {
+        "source": "npm",
+        "package_name": "lodash",
+        "url": "https://www.npmjs.com/package/lodash",
+        "latest_version": "4.17.21",
+        "published_at": "2021-02-20T00:00:00.000Z",
+        "deprecated_or_yanked": false,
+        "notice_text": null,
+        "changelog_excerpt": "4.17.21 — Prototype pollution fix in zipObjectDeep / set / unset related paths. Security patch recommended.",
+        "signal_tags": [
+          "security"
+        ]
+      },
+      {
+        "source": "npm",
+        "package_name": "express",
+        "url": "https://www.npmjs.com/package/express",
+        "latest_version": "4.21.2",
+        "published_at": null,
+        "deprecated_or_yanked": false,
+        "notice_text": null,
+        "changelog_excerpt": "Maintenance release. See GitHub releases for security advisories on older 4.x lines.",
+        "signal_tags": [
+          "security"
+        ]
+      },
+      {
+        "source": "chaos",
+        "package_name": "chaos-demo",
+        "url": "https://example.com/chaos-demo",
+        "latest_version": "2.4.1",
+        "published_at": null,
+        "deprecated_or_yanked": false,
+        "notice_text": "Security fix in 2.4.1: patched prototype pollution in config merge.",
+        "changelog_excerpt": "## 2.4.1\n- security: fix prototype pollution in mergeConfig\n- deprecate legacy unsafeEval option",
+        "signal_tags": [
+          "deprecation",
+          "security"
+        ]
+      }
+    ],
+    "bumps": [
+      {
+        "package_name": "lodash",
+        "current_version": "4.17.20",
+        "suggested_version": "4.17.21",
+        "reason": "maintainer notes mention a security fix; you are on 4.17.20, latest on npm is 4.17.21",
+        "source": "npm",
+        "signal_tags": [
+          "security"
+        ]
+      },
+      {
+        "package_name": "express",
+        "current_version": "4.18.2",
+        "suggested_version": "4.21.2",
+        "reason": "maintainer notes mention a security fix; you are on 4.18.2, latest on npm is 4.21.2",
+        "source": "npm",
+        "signal_tags": [
+          "security"
+        ]
+      },
+      {
+        "package_name": "chaos-demo",
+        "current_version": null,
+        "suggested_version": "2.4.1",
+        "reason": "maintainer notes mention a security fix; package or API is deprecated",
+        "source": "chaos",
+        "signal_tags": [
+          "deprecation",
+          "security"
+        ]
+      }
+    ],
+    "heal_events": [
+      {
+        "id": "chaos-1786944249786-0",
+        "at": "2026-08-17T05:24:09.786Z",
+        "collector": "chaos",
+        "stage": "validation_failed",
+        "detail": "Zod validation failed for chaos",
+        "zod_issues": [
+          "[0] latest_version: String must contain at least 1 character(s)",
+          "[0] changelog_excerpt: String must contain at least 1 character(s)"
+        ]
+      },
+      {
+        "id": "chaos-1786944249786-1",
+        "at": "2026-08-17T05:24:09.786Z",
+        "collector": "chaos",
+        "stage": "heal_started",
+        "detail": "The chaos scraper output failed schema validation after a likely site layout change. Missing or invalid fields: [0] latest_version: String must contain at least 1 character(s); [0] changelog_excerpt: String must contain at least 1 character(s). Re-extract using plain-language descriptions: package_name, latest_version (header/tag), notice_text (security/deprecation banner), changelog_excerpt (release notes body). Keep the same JSON field names. Fix selectors for the current DOM."
+      },
+      {
+        "id": "chaos-1786944249786-2",
+        "at": "2026-08-17T05:24:09.786Z",
+        "collector": "chaos",
+        "stage": "heal_pending_answer",
+        "detail": "Mock heal proposed selector rewrite (auto-approve)"
+      },
+      {
+        "id": "chaos-1786944249786-3",
+        "at": "2026-08-17T05:24:09.786Z",
+        "collector": "chaos",
+        "stage": "heal_approved",
+        "detail": "Auto-approved mock heal"
+      },
+      {
+        "id": "chaos-1786944249786-4",
+        "at": "2026-08-17T05:24:09.786Z",
+        "collector": "chaos",
+        "stage": "retry_started",
+        "detail": "Re-scraping after mock heal"
+      },
+      {
+        "id": "chaos-1786944249786-5",
+        "at": "2026-08-17T05:24:09.786Z",
+        "collector": "chaos",
+        "stage": "retry_succeeded",
+        "detail": "Recovered 1 row(s) for chaos"
+      }
+    ],
+    "health": {
+      "npm": "healthy",
+      "github_releases": "idle",
+      "chaos": "healthy"
+    },
+    "errors": []
+  },
+  "mock": true
+}

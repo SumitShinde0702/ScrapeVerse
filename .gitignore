@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.next/
+.data/
+.env
+.env.local
+*.log
+.DS_Store
+web-ui/public/moon-walk.mp4
+web-ui/public/moon-walk.jpg

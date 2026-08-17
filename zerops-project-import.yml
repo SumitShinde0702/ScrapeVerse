@@ -1,0 +1,22 @@
+# Import this in Zerops: Dashboard → Import a project
+# or: zcli project project-import zerops-project-import.yml
+#
+# After import:
+# 1. Push this repo and connect GitHub (or zcli push) to both services
+# 2. On service `api`, add secret env vars from .env.example
+# 3. Open the `web` subdomain; set CHAOS_PAGE_URL to https://<web-subdomain>/chaos/
+
+project:
+  name: scrapeverse
+  tags:
+    - scrapeverse
+    - changelog-radar
+
+services:
+  - hostname: api
+    type: nodejs@24
+    enableSubdomainAccess: false
+
+  - hostname: web
+    type: nodejs@24
+    enableSubdomainAccess: true

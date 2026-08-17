@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>chaos-registry — demo package</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1020;
+        --panel: #121a2f;
+        --text: #e8eefc;
+        --muted: #9aa8c7;
+        --accent: #3dff9a;
+        --warn: #ffb020;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #182445, var(--bg));
+        color: var(--text);
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+      .package-card {
+        width: min(560px, 100%);
+        background: var(--panel);
+        border: 1px solid #243152;
+        border-radius: 16px;
+        padding: 1.5rem 1.75rem;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      }
+      h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.6rem;
+        letter-spacing: -0.02em;
+      }
+      .meta { color: var(--muted); font-size: 0.95rem; margin-bottom: 1rem; }
+      .version-number {
+        display: inline-block;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 1.1rem;
+        color: var(--accent);
+        margin-bottom: 1rem;
+      }
+      .security-notice {
+        background: rgba(255, 176, 32, 0.12);
+        border: 1px solid rgba(255, 176, 32, 0.45);
+        color: #ffe2a8;
+        padding: 0.85rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        line-height: 1.45;
+      }
+      .changelog {
+        color: var(--text);
+        line-height: 1.55;
+        white-space: pre-wrap;
+      }
+      .label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+      footer {
+        margin-top: 1.25rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      DEMO BREAK (Proof B):
+      1. Rename .version-number → #ver
+      2. Rename .security-notice → .alert-box
+      Then re-scrape with c_chaos so Zod fails and Bright Data heal runs.
+    -->
+    <article class="package-card" data-package="chaos-demo">
+      <h1 class="package-name">chaos-demo</h1>
+      <p class="meta">Fake registry page for Changelog Radar self-heal demos</p>
+
+      <span class="label">Latest version</span>
+      <div class="version-number">2.4.1</div>
+
+      <div class="security-notice">
+        Security fix in 2.4.1: patched prototype pollution in config merge.
+        Upgrade immediately if you are on &lt; 2.4.0.
+      </div>
+
+      <span class="label">Changelog excerpt</span>
+      <div class="changelog">## 2.4.1
+- security: fix prototype pollution in mergeConfig
+- deprecate legacy `unsafeEval` option
+
+## 2.4.0
+- breaking: require Node 20+</div>
+
+      <footer>
+        Controlled page for Bright Data Scraper Studio heal demos. Edit selectors on purpose.
+      </footer>
+    </article>
+  </body>
+</html>
