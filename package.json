@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build": "npm run build -w @changelog-radar/shared && npm run build -w @changelog-radar/mcp-server && npm run build -w @changelog-radar/web-ui",
+    "dev": "npm run build -w @changelog-radar/shared && concurrently -n api,ui -c cyan,magenta npm:dev:api npm:dev:ui",
     "dev:api": "npm run dev -w @changelog-radar/mcp-server",
     "dev:ui": "npm run dev -w @changelog-radar/web-ui",
     "dev:mcp": "npm run start -w @changelog-radar/mcp-server",
@@ -22,5 +23,8 @@
   },
   "dependencies": {
     "mime-db": "^1.54.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }

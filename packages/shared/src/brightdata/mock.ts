@@ -54,7 +54,7 @@ const MOCK: Record<string, Omit<MaintainerSignal, "signal_tags">> = {
     published_at: null,
     deprecated_or_yanked: false,
     notice_text: null,
-    changelog_excerpt: "Bugfix release. No known security notices.",
+    changelog_excerpt: "Bugfix release. Documentation and range-parsing tweaks only.",
   },
   "lodash-gh": {
     source: "github_releases",
@@ -66,6 +66,49 @@ const MOCK: Record<string, Omit<MaintainerSignal, "signal_tags">> = {
     notice_text: null,
     changelog_excerpt:
       "Release 4.17.21 — Bump to fix security issue. Prototype pollution.",
+  },
+  "express-gh": {
+    source: "github_releases",
+    package_name: "express",
+    url: "https://github.com/expressjs/express/releases",
+    latest_version: "4.21.2",
+    published_at: null,
+    deprecated_or_yanked: false,
+    notice_text: null,
+    changelog_excerpt:
+      "4.21.2 — dependency updates. Advisories for older 4.18.x are listed on the security tab.",
+  },
+  "axios-gh": {
+    source: "github_releases",
+    package_name: "axios",
+    url: "https://github.com/axios/axios/releases",
+    latest_version: "1.7.9",
+    published_at: null,
+    deprecated_or_yanked: false,
+    notice_text: null,
+    changelog_excerpt:
+      "1.7.9 — CVE-class SSRF / credential leak fixes versus 1.6.x. Upgrade recommended.",
+  },
+  "minimist-gh": {
+    source: "github_releases",
+    package_name: "minimist",
+    url: "https://github.com/minimistjs/minimist/releases",
+    latest_version: "1.2.8",
+    published_at: null,
+    deprecated_or_yanked: false,
+    notice_text: null,
+    changelog_excerpt:
+      "1.2.8 — prototype pollution patches. Do not stay on 1.2.5.",
+  },
+  "semver-gh": {
+    source: "github_releases",
+    package_name: "semver",
+    url: "https://github.com/npm/node-semver/releases",
+    latest_version: "7.6.3",
+    published_at: null,
+    deprecated_or_yanked: false,
+    notice_text: null,
+    changelog_excerpt: "7.6.3 — maintenance tag. Changelog is bugfixes only.",
   },
   chaos: {
     source: "chaos",
@@ -88,13 +131,16 @@ export function mockRowsForUrl(
   const lower = url.toLowerCase();
   let key = "semver";
   if (source === "chaos" || lower.includes("chaos")) key = "chaos";
-  else if (lower.includes("lodash") && source === "github_releases")
-    key = "lodash-gh";
-  else if (lower.includes("lodash")) key = "lodash";
-  else if (lower.includes("express")) key = "express";
-  else if (lower.includes("axios")) key = "axios";
-  else if (lower.includes("minimist")) key = "minimist";
-  else if (lower.includes("semver")) key = "semver";
+  else if (lower.includes("lodash"))
+    key = source === "github_releases" ? "lodash-gh" : "lodash";
+  else if (lower.includes("express"))
+    key = source === "github_releases" ? "express-gh" : "express";
+  else if (lower.includes("axios"))
+    key = source === "github_releases" ? "axios-gh" : "axios";
+  else if (lower.includes("minimist"))
+    key = source === "github_releases" ? "minimist-gh" : "minimist";
+  else if (lower.includes("semver"))
+    key = source === "github_releases" ? "semver-gh" : "semver";
 
   const base = { ...MOCK[key] };
   base.source = source;

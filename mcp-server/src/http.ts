@@ -1,8 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parsePackageJson } from "@changelog-radar/shared";
 import cors from "cors";
 import express from "express";
+import {
+  openaiEnabled,
+  reviewScrapePlan,
+  summarizeAudit,
+  type PreviewDep,
+} from "./openai.js";
 import { orchestrator } from "./runtime.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,6 +19,15 @@ const fixturesPkg = path.join(root, "fixtures", "package.json");
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
+
+app.get("/", (_req, res) => {
+  res.json({
+    ok: true,
+    service: "changelog-radar-api",
+    health: "/health",
+    collectors: "/api/health/collectors",
+  });
+});
 
 app.get("/health", (_req, res) => {
   res.json({
@@ -34,6 +50,64 @@ app.get("/api/health/collectors", (_req, res) => {
 app.get("/api/findings", (req, res) => {
   const limit = Number(req.query.limit ?? 50);
   res.json({ findings: orchestrator.store.list(limit) });
+});
+
+app.post("/api/preview", async (req, res) => {
+  try {
+    const packageJson =
+      typeof req.body?.packageJson === "string"
+        ? req.body.packageJson
+        : fs.readFileSync(fixturesPkg, "utf8");
+    const includeGithub = req.body?.includeGithub !== false;
+    const includeChaos = Boolean(req.body?.includeChaos);
+    const limit = Number(req.body?.limit ?? 12);
+    const chaosUrl =
+      typeof req.body?.chaosUrl === "string"
+        ? req.body.chaosUrl
+        : (orchestrator.config.chaosPageUrl ?? "https://example.com/chaos-demo");
+
+    const deps: PreviewDep[] = parsePackageJson(packageJson)
+      .slice(0, Number.isFinite(limit) ? limit : 12)
+      .map((d) => ({
+        name: d.name,
+        version: d.version,
+        npmUrl: d.npmUrl,
+        githubReleasesUrl: includeGithub ? d.githubReleasesUrl : undefined,
+        chaosUrl: includeChaos ? chaosUrl : undefined,
+      }));
+
+    const reviewed = await reviewScrapePlan(deps);
+    res.json({
+      includeGithub,
+      includeChaos,
+      chaosUrl: includeChaos ? chaosUrl : undefined,
+      aiEnabled: reviewed.aiEnabled,
+      aiNote: reviewed.aiNote,
+      deps: reviewed.deps,
+    });
+  } catch (err) {
+    res.status(400).json({
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.post("/api/summarize", async (req, res) => {
+  try {
+    if (!openaiEnabled()) {
+      res.json({ summary: null, aiEnabled: false });
+      return;
+    }
+    const summary = await summarizeAudit({
+      signals: Array.isArray(req.body?.signals) ? req.body.signals : [],
+      bumps: Array.isArray(req.body?.bumps) ? req.body.bumps : [],
+    });
+    res.json({ summary, aiEnabled: true });
+  } catch (err) {
+    res.status(400).json({
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
 });
 
 app.post("/api/audit", async (req, res) => {

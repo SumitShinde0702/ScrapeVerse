@@ -139,7 +139,9 @@ export class Orchestrator {
     const signals = [...npmOut.signals, ...ghSignals, ...chaosSignals];
     for (const s of signals) {
       const bump = suggestBump(s, currentByName[s.package_name] ?? null);
-      if (bump) bumps.push(bump);
+      if (bump && !bumps.some((b) => b.package_name === bump.package_name)) {
+        bumps.push(bump);
+      }
     }
 
     await this.store.addMany(

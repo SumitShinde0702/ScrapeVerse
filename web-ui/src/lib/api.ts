@@ -106,11 +106,11 @@ export async function runChaosHeal() {
   return data as AuditResult;
 }
 
-export async function startWatch() {
+export async function startWatch(body: Record<string, unknown> = {}) {
   const res = await fetch(`${API_URL}/api/watch/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ intervalMs: 15 * 60_000 }),
+    body: JSON.stringify({ intervalMs: 15 * 60_000, ...body }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error ?? "watch failed");
@@ -125,4 +125,68 @@ export async function stopWatch() {
 export async function fetchFixturePackage() {
   const res = await fetch(`${API_URL}/api/fixture/package`);
   return res.text();
+}
+
+export type UrlCheckStatus = "ok" | "unsure" | "likely_wrong";
+
+export type UrlCheck = {
+  status: UrlCheckStatus;
+  reason: string;
+};
+
+export type ScrapePlanDep = {
+  name: string;
+  version: string;
+  npmUrl: string;
+  githubReleasesUrl?: string;
+  chaosUrl?: string;
+  checks?: {
+    npm?: UrlCheck;
+    github?: UrlCheck;
+    chaos?: UrlCheck;
+  };
+};
+
+export type ScrapePlan = {
+  includeGithub: boolean;
+  includeChaos: boolean;
+  chaosUrl?: string;
+  aiEnabled: boolean;
+  aiNote?: string;
+  deps: ScrapePlanDep[];
+};
+
+export async function fetchScrapePlan(body: Record<string, unknown> = {}) {
+  const res = await fetch(`${API_URL}/api/preview`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "preview failed");
+  return data as ScrapePlan;
+}
+
+export async function summarizeAudit(body: {
+  signals: Array<{
+    package_name: string;
+    source: string;
+    latest_version: string;
+    signal_tags: string[];
+  }>;
+  bumps: Array<{
+    package_name: string;
+    current_version: string | null;
+    suggested_version: string;
+    reason: string;
+  }>;
+}) {
+  const res = await fetch(`${API_URL}/api/summarize`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "summarize failed");
+  return data as { summary: string | null; aiEnabled: boolean };
 }

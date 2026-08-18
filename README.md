@@ -23,15 +23,9 @@ cp .env.example .env
 # leave BRIGHT_DATA_API_TOKEN empty → CHANGELOG_RADAR_MOCK behavior (auto when token missing)
 
 npm install
-npm run build -w @changelog-radar/shared
-
-# terminal 1 — API
-npm run dev:api
-
-# terminal 2 — UI (copy hero video first)
 copy public\moon-walk\moon-walk\moon-walk.mp4 web-ui\public\moon-walk.mp4
 copy public\moon-walk\moon-walk\moon-walk.jpg web-ui\public\moon-walk.jpg
-npm run dev:ui
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) (moon-walk landing) → **Open Radar**.
