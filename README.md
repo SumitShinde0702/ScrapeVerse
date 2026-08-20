@@ -1,26 +1,170 @@
 # Changelog Radar
 
-Self-healing maintainer-page radar for the [Into the Scrape-Verse](https://www.wemakedevs.org/hackathons/scrape-verse) hackathon (Bright Data Scraper Studio).
+**Read what maintainers already wrote — before CVE databases catch up.**
 
-**Positioning:** Read npm + GitHub Releases (and a controllable chaos page) before CVE databases catch up. When the DOM moves, Zod fails → Bright Data Self-Healing → retry. Use it **reactively** from Cursor MCP or **proactively** via Watch.
+Changelog Radar turns a `package.json` into live scrapes of npm package pages and GitHub Releases. It tags security / deprecation / breaking signals from that HTML, suggests version bumps, and when a site layout breaks the scraper, **Bright Data Self-Healing** repairs the same collector and retries.
+
+Built for the [Into the Scrape-Verse](https://www.wemakedevs.org/hackathons/scrape-verse) hackathon (Bright Data Scraper Studio).
+
+---
+
+## The problem (why this exists)
+
+Modern apps sit on hundreds of npm packages. Security tools mostly watch **CVE feeds** (NVD, GHSA). Those feeds are important — and they are often **late**.
+
+### The lag is real
+
+| Fact | Why it matters |
+|------|----------------|
+| **~25 days** median delay from a public security release to an advisory in public vulnerability databases ([Endor Labs / CSO Online](https://www.csoonline.com/article/3596697/kicking-dependency-why-cybersecurity-needs-a-better-model-for-handling-oss-vulnerabilities.html)) | Your scanner stays quiet while the fix is already on GitHub Releases. |
+| **NVD backlog**: in 2024, thousands of CVEs sat **Awaiting Analysis** for months (peaks above **~18k** unenriched; analysis rates dropped near **3%** at the worst point — [Talos](https://blog.talosintelligence.com/nvd-vulnerability-backlog-the-need-to-know/), [VulnCheck](https://www.vulncheck.com/blog/nvd-backlog-exploitation-lurking)) | Tools that only trust NVD metadata go blind even after a CVE id exists. |
+| Exploit PoCs can appear **minutes** after disclosure | Waiting for a polished CVE entry is not a strategy. |
+
+### Maintainers speak first — on HTML pages
+
+Before a CVE id exists, maintainers already:
+
+- stamp **deprecation / security banners** on [npmjs.com](https://www.npmjs.com)
+- write **“security fix”** into GitHub Release bodies
+- **yank** bad versions
+
+That prose is the earliest public signal. Registry JSON gives you a version number. It does **not** reliably give you the human-written notice a developer actually reads.
+
+### Scraping that HTML usually fails quietly
+
+1. **Selectors rot** — npm restyles a sidebar; GitHub renames a class. The scraper returns empty `latest_version` / `changelog_excerpt`.
+2. **HTTP 200 looks healthy** — the job “succeeded,” but you stored ghosts.
+3. **Fixing scrapers is a ticket** — by the time someone rewrites CSS, the pre-CVE window is gone.
+
+**One sentence:** teams need the maintainer page *now*, and they need the scraper to stay alive when the DOM moves.
+
+---
+
+## The solution
+
+**Changelog Radar = package.json → Bright Data scrapes → Zod validation → signal tags + bumps → self-heal on failure.**
+
+```
+package.json
+    │
+    ▼
+Parse deps → npm URL + GitHub Releases URL (optional chaos demo URL)
+    │
+    ▼
+Bright Data Scraper Studio collectors pull the HTML
+    │
+    ▼
+Zod schema: latest_version + changelog_excerpt required
+    │
+    ├─ OK  → tag security / deprecation / breaking / yanked
+    │         → suggest bumps if you are behind
+    │
+    └─ FAIL → Bright Data Self-Healing (same collector id)
+              → re-scrape → re-validate
+```
+
+### What you get
+
+| Output | Meaning |
+|--------|---------|
+| **Signals** | Maintainer prose tagged: `security`, `deprecation`, `breaking`, `yanked` |
+| **Suggested bumps** | `you are on X → latest on page is Y` with a short reason |
+| **Heal timeline** | Proof the scraper did not die when the DOM broke |
+| **Watch mode** | Rescan on an interval (proactive) |
+| **Cursor MCP** | Same audit from the agent: `audit_dependencies` |
+
+### What we do **not** do
+
+- We do **not** invent CVEs or replace NVD/GHSA.
+- We do **not** scrape with frozen CSS as the source of truth.
+- We do **not** replace the collector on heal — we **mutate the same `c_…` id** and retry.
+
+---
+
+## How the scraper is used (Bright Data)
+
+Changelog Radar is a **Scraper Studio (Data Collector API)** product path — not a generic proxy demo.
+
+### Three collectors
+
+| Collector | Env var | Target |
+|-----------|---------|--------|
+| npm | `BRIGHT_DATA_COLLECTOR_NPM` | `https://www.npmjs.com/package/{name}` |
+| GitHub Releases | `BRIGHT_DATA_COLLECTOR_GITHUB` | `https://github.com/{owner}/{repo}/releases` |
+| Chaos (demo) | `BRIGHT_DATA_COLLECTOR_CHAOS` | Your hosted chaos page (`CHAOS_PAGE_URL`) |
+
+Each run sends inputs shaped like `[{ "url": "…" }]`. Collectors extract:
+
+- `package_name`
+- `url`
+- `latest_version`
+- `published_at`
+- `deprecated_or_yanked` (boolean)
+- `notice_text` (banner / advisory copy; may be null)
+- `changelog_excerpt` (release / changelog prose)
+
+Fields are described in **plain language** so Self-Healing can repair extraction when the layout changes.
+
+### Collection loop
+
+1. `POST /dca/trigger?collector=c_…&queue_next=1` with the URL list  
+2. Poll `GET /dca/dataset?id=…` until rows arrive  
+3. Parse every row with **Zod** (`MaintainerSignalSchema`)  
+4. On Zod miss → heal pipeline (below) → trigger again → validate again  
+
+### Self-healing loop (same collector id)
+
+1. Build a ≤1000-character heal prompt from Zod issue paths  
+2. `POST …/refactor_template`  
+3. Poll progress until the job pauses with a template diff  
+4. Auto-approve (`resume_automation_job` with approve)  
+5. Re-trigger scrape on the **same** `c_…`  
+6. Re-validate  
+
+That is the hackathon proof: scrapers that survive layout drift without a human rewriting selectors overnight.
+
+### End-to-end user flow (UI)
+
+1. **Paste / upload** a `package.json`  
+2. **Scan** → preview the exact URLs that will be scraped (optional OpenAI check that GitHub guesses look right)  
+3. **Looks correct** → Bright Data scrapes  
+4. **Results** → per-package cards with quotes, tags, and suggested bumps  
+5. Optional: **Start watch** or **Chaos heal demo**  
+
+---
 
 ## Architecture
 
 ```
-web-ui (Next.js) ──HTTP──► mcp-server (Express API + MCP stdio)
-                              │
-                              ▼
-                     packages/shared (Zod, Bright Data client, orchestrator)
-                              │
-                              ▼
-                     Scraper Studio collectors: npm | GitHub | chaos
+web-ui (Next.js)
+   │  HTTP /api/*
+   ▼
+mcp-server (Express API + MCP stdio)
+   │
+   ▼
+packages/shared (Zod, orchestrator, Bright Data client)
+   │
+   ▼
+Scraper Studio collectors: npm | github_releases | chaos
 ```
 
-## Quick start (mock mode — no Bright Data key required)
+| Path | Role |
+|------|------|
+| `packages/shared` | Schemas, signals, Bright Data client, orchestrator |
+| `mcp-server` | HTTP API + Cursor MCP tools |
+| `web-ui` | Landing + guided Radar UI |
+| `fixtures/chaos-page` | Controllable HTML for heal demos |
+| `docs/setup-collectors.md` | Create collectors + redeem credits |
+
+---
+
+## Quick start (mock — no Bright Data key)
+
+Use this to try the product flow with canned maintainer notes.
 
 ```bash
 cp .env.example .env
-# leave BRIGHT_DATA_API_TOKEN empty → CHANGELOG_RADAR_MOCK behavior (auto when token missing)
+# CHANGELOG_RADAR_MOCK=1  (or leave BRIGHT_DATA_API_TOKEN empty)
 
 npm install
 copy public\moon-walk\moon-walk\moon-walk.mp4 web-ui\public\moon-walk.mp4
@@ -28,35 +172,46 @@ copy public\moon-walk\moon-walk\moon-walk.jpg web-ui\public\moon-walk.jpg
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) (moon-walk landing) → **Open Radar**.
+Open [http://localhost:3000](http://localhost:3000) → **Open Radar**.
 
-- **Run audit** — scrape fixture deps (mock rows tagged with security signals)
-- **Start watch** — proactive rescan + findings feed
-- **Chaos heal demo** — forced Zod failure → heal timeline → retry success
+- **Scan** → review URLs → **Looks correct** → results  
+- **Start watch** → proactive rescans  
+- **Chaos heal demo** → forced Zod fail → heal timeline  
 
-### Proof scripts
+---
 
-```bash
-npm run prove:live   # Proof A
-npm run prove:heal   # Proof B (chaos heal pipeline)
+## Live Bright Data mode (real websites)
+
+1. Redeem hackathon credits: Bright Data **Billing** → code **`wemakedevs`** (lowercase)  
+2. Install CLI: `npm install -g @brightdata/cli` then `bdata login`  
+3. Create collectors — see [docs/setup-collectors.md](docs/setup-collectors.md)  
+   (CLI needs **URL + description**; Command Prompt needs **double quotes**)  
+4. Put into `.env`:
+
+```env
+CHANGELOG_RADAR_MOCK=0
+BRIGHT_DATA_API_TOKEN=...
+BRIGHT_DATA_COLLECTOR_NPM=c_...
+BRIGHT_DATA_COLLECTOR_GITHUB=c_...
+BRIGHT_DATA_COLLECTOR_CHAOS=c_...
+CHAOS_PAGE_URL=https://your-hosted-chaos-page/
 ```
 
-Artifacts land in `docs/proof/live-collect/` and `docs/proof/heal/`.
+5. Restart: `npm run dev` — Radar chip should say **LIVE**, not **MOCK**  
+6. Proof scripts:
 
-## Live Bright Data mode
+```bash
+npm run prove:live   # Proof A — live collect
+npm run prove:heal   # Proof B — heal after DOM break
+```
 
-1. Redeem credits: Bright Data billing → code `wemakedevs` (lowercase)
-2. Follow [docs/setup-collectors.md](docs/setup-collectors.md) to create three collectors
-3. Deploy `fixtures/chaos-page/` publicly; set `CHAOS_PAGE_URL`
-4. Fill `.env` collector IDs + `BRIGHT_DATA_API_TOKEN`
-5. Set `CHANGELOG_RADAR_MOCK=0`
-6. Re-run `prove:live` / `prove:heal`
+Artifacts: `docs/proof/live-collect/`, `docs/proof/heal/`.
 
-For a **real DOM heal**: edit hosted chaos HTML (rename `.version-number` / `.security-notice`), then scrape with live `c_chaos`.
+Optional: `OPENAI_API_KEY` for URL review on the preview step and a short results summary (scraping stays Bright Data + rules either way).
+
+---
 
 ## Cursor MCP
-
-Add to Cursor MCP settings:
 
 ```json
 {
@@ -73,9 +228,7 @@ Add to Cursor MCP settings:
 }
 ```
 
-Build MCP first: `npm run build -w @changelog-radar/shared && npm run build -w @changelog-radar/mcp-server`.
-
-### Tools
+Build first: `npm run build -w @changelog-radar/shared && npm run build -w @changelog-radar/mcp-server`.
 
 | Tool | Mode |
 |------|------|
@@ -86,25 +239,23 @@ Build MCP first: `npm run build -w @changelog-radar/shared && npm run build -w @
 
 **Example prompt:** *Audit my package.json for maintainer warnings before CVE databases catch up.*
 
-## Demo script (~90s)
+---
 
-See [docs/DEMO.md](docs/DEMO.md). Short version:
+## Demo (~90s)
 
-1. Landing — moon-walk hero, brand **Changelog Radar**
-2. Radar — Run audit → npm + GitHub rows + bumps
-3. Chaos heal demo → orange Healing → green + timeline
-4. Cursor MCP `audit_dependencies` → same structured findings
+See [docs/DEMO.md](docs/DEMO.md).
 
-## Repo map
+1. Landing — brand **Changelog Radar**  
+2. Radar — Scan → confirm URLs → results (quotes + bumps)  
+3. Chaos heal — Healing → Healthy + timeline  
+4. Cursor MCP — same structured findings  
 
-| Path | Role |
-|------|------|
-| `packages/shared` | Zod schemas, Bright Data client, orchestrator |
-| `mcp-server` | HTTP API + MCP stdio |
-| `web-ui` | Landing + radar UI |
-| `fixtures/chaos-page` | Controllable heal demo HTML |
-| `docs/setup-collectors.md` | Day 0 Bright Data setup |
+---
 
-## UI stack
+## Bottom line
 
-Taste-oriented tokens (Syne / IBM Plex, signal green), moon-walk hero, shadcn-like ops chrome, React Flow signal map. Aceternity/React Bits used sparingly via motion + heal pulse.
+| Old world | Changelog Radar |
+|-----------|-----------------|
+| Wait for CVE / NVD enrichment | Read maintainer HTML **now** |
+| CSS scrapers go hollow on restyle | Zod tripwire + Bright Data heal **in place** |
+| Opaque “audit” dumps | Clear flow: manifest → URLs → scrape → warnings + bumps |

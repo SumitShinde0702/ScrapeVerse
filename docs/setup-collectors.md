@@ -4,17 +4,24 @@ Changelog Radar needs three Scraper Studio collectors. Redeem hackathon credits 
 
 ## 1. Create collectors
 
-Fastest path (CLI inside Cursor / Claude Code):
+Install the Bright Data CLI first (Windows):
 
 ```bash
+npm install -g @brightdata/cli
+```
+
+Or skip the global install and prefix every command with `npx -p @brightdata/cli`.
+
+Then log in and create three collectors. Current CLI syntax is **URL first, then description**. Each create can take 5–15 minutes.
+
+Command Prompt (use **double quotes** — single quotes do not group arguments in cmd):
+
+```bat
 bdata login
-# or: export BRIGHT_DATA_API_TOKEN=...
 
-bdata scraper create "Scrape npm package pages. Input: url. Output JSON fields: package_name, url, latest_version, published_at, deprecated_or_yanked (boolean), notice_text, changelog_excerpt. Prefer plain-language extraction so Self-Healing can repair selectors."
+bdata scraper create https://www.npmjs.com/package/lodash "Extract package_name, url, latest_version, published_at, deprecated_or_yanked as boolean, notice_text, and changelog_excerpt from this npm package page using plain-language extraction." --name changelog-radar-npm
 
-bdata scraper create "Scrape GitHub Releases pages (github.com/owner/repo/releases). Input: url. Same output fields as npm collector. latest_version = newest release tag; changelog_excerpt = release body text; notice_text = security/advisory banner if any."
-
-bdata scraper create "Scrape the Changelog Radar chaos demo page. Input: url. Extract package_name from .package-name, latest_version from .version-number, notice_text from .security-notice, changelog_excerpt from .changelog. deprecated_or_yanked false unless notice says deprecated."
+bdata scraper create https://github.com/lodash/lodash/releases "Extract package_name, url, latest_version as the newest release tag, published_at, deprecated_or_yanked as boolean, notice_text, and changelog_excerpt from this GitHub Releases page." --name changelog-radar-github
 ```
 
 Copy the three `c_...` IDs into `.env`:
