@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Changelog Radar — slides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070b14;
+      --bg-2: #0b1220;
+      --text: #e8edf5;
+      --muted: #8b97ab;
+      --line: #1c2738;
+      --signal: #3dff9a;
+      --signal-dim: #1a6b48;
+      --heal: #ff9a3d;
+      --danger: #ff5c7a;
+      --steel: #5a6a80;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #000; color: var(--text); font-family: "IBM Plex Sans", system-ui, sans-serif; overflow: hidden; }
+    .stage {
+      height: 100%;
+      display: grid;
+      place-items: center;
+    }
+    .frame {
+      width: min(100vw, calc(100vh * 16 / 9));
+      height: min(100vh, calc(100vw * 9 / 16));
+      position: relative;
+      background: var(--bg);
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 6% 7%;
+      display: none;
+      flex-direction: column;
+      background:
+        radial-gradient(ellipse 80% 50% at 100% 0%, rgba(61,255,154,0.07), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 0% 100%, rgba(61,255,154,0.04), transparent 50%),
+        var(--bg);
+    }
+    .slide.on { display: flex; }
+    .kicker {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--signal);
+      margin-bottom: 1.1rem;
+    }
+    h1, h2 { font-family: Syne, sans-serif; font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; }
+    h1 { font-size: clamp(2.4rem, 6vw, 5.2rem); }
+    h2 { font-size: clamp(1.7rem, 3.6vw, 3rem); max-width: 18ch; }
+    .lede { margin-top: 1.2rem; font-size: clamp(1rem, 1.8vw, 1.35rem); color: var(--muted); max-width: 36rem; line-height: 1.5; }
+    .meta { margin-top: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; color: var(--steel); letter-spacing: 0.04em; }
+    .row { display: grid; gap: 1.2rem; }
+    .row-2 { grid-template-columns: 1fr 1fr; }
+    .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(11,18,32,0.7);
+      padding: 1.15rem 1.25rem;
+    }
+    .card h3 { font-family: Syne, sans-serif; font-size: 1.05rem; margin-bottom: 0.4rem; }
+    .card p, .card li { color: var(--muted); font-size: 0.92rem; line-height: 1.45; }
+    .mono { font-family: "IBM Plex Mono", monospace; }
+    .tag {
+      display: inline-block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid var(--signal-dim);
+      color: var(--signal);
+    }
+    .tag.heal { color: var(--heal); border-color: #5a3a18; }
+    .tag.bad { color: var(--danger); border-color: #5a2230; }
+    ul.clean { list-style: none; }
+    ul.clean li { padding: 0.55rem 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 1.02rem; }
+    ul.clean li strong { color: var(--text); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { text-align: left; padding: 0.7rem 0.4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-family: "IBM Plex Mono", monospace; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--steel); font-weight: 500; }
+    td:first-child { color: var(--signal); font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; width: 32%; }
+    .pipe {
+      display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; margin-top: 2rem;
+    }
+    .pipe .box {
+      border: 1px solid var(--line);
+      padding: 0.65rem 0.9rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      background: var(--bg-2);
+    }
+    .pipe .box.hi { border-color: var(--signal-dim); color: var(--signal); }
+    .pipe .arr { color: var(--signal); opacity: 0.7; }
+    .split-json {
+      background: #05080f;
+      border: 1px solid var(--line);
+      padding: 1.2rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: #9aa8bd;
+    }
+    .split-json .k { color: #7dd3fc; }
+    .split-json .s { color: var(--signal); }
+    .banner {
+      border: 1px solid #5a3a18;
+      background: rgba(255,154,61,0.08);
+      padding: 1.1rem 1.2rem;
+      color: var(--heal);
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .layers { display: grid; gap: 0.55rem; margin-top: 1.4rem; }
+    .layer {
+      display: grid;
+      grid-template-columns: 9.5rem 1fr;
+      gap: 1rem;
+      align-items: center;
+      border: 1px solid var(--line);
+      padding: 0.7rem 1rem;
+    }
+    .layer .who { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--signal); }
+    .layer p { color: var(--muted); font-size: 0.88rem; }
+    .flow { display: grid; gap: 0.45rem; margin-top: 1.2rem; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; }
+    .flow div { padding: 0.45rem 0.7rem; border-left: 2px solid var(--signal-dim); color: var(--muted); }
+    .flow div b { color: var(--text); font-weight: 500; }
+    .schema {
+      background: #05080f;
+      border: 1px solid var(--line);
+      padding: 1.3rem 1.4rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.84rem;
+      line-height: 1.7;
+    }
+    .schema .ok { color: var(--signal); }
+    .schema .no { color: var(--danger); }
+    .schema .dim { color: var(--steel); }
+    .steps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.7rem; margin-top: 1.4rem; }
+    .steps article {
+      border: 1px solid var(--line);
+      padding: 0.9rem;
+    }
+    .steps .n { font-family: "IBM Plex Mono", monospace; color: var(--signal); font-size: 0.72rem; }
+    .steps h3 { font-family: Syne, sans-serif; font-size: 0.95rem; margin: 0.35rem 0 0.3rem; }
+    .steps p { color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
+    .beat {
+      border: 1px dashed var(--line);
+      min-height: 7.5rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .beat .n { font-family: Syne, sans-serif; font-size: 1.8rem; color: var(--signal); }
+    .mock-card {
+      border: 1px solid var(--line);
+      padding: 1.2rem 1.3rem;
+      max-width: 22rem;
+    }
+    .health { display: flex; gap: 0.5rem; align-items: center; font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; }
+    .dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--heal); box-shadow: 0 0 8px var(--heal); animation: pulse 1.2s infinite; }
+    .dot.ok { background: var(--signal); box-shadow: 0 0 8px var(--signal); animation: none; }
+    @keyframes pulse { 50% { opacity: 0.35; } }
+    .radar-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        repeating-radial-gradient(circle at 78% 28%, transparent 0, transparent 38px, rgba(61,255,154,0.04) 39px, transparent 40px),
+        conic-gradient(from 210deg at 78% 28%, rgba(61,255,154,0.12), transparent 40deg);
+      mask-image: radial-gradient(circle at 78% 28%, black 0%, transparent 55%);
+    }
+    .chrome {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 1.4rem 0.85rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      color: var(--steel);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+    .bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--signal); }
+    .notes {
+      display: none;
+      position: fixed;
+      right: 1rem; bottom: 1rem; left: 1rem;
+      max-width: 42rem;
+      margin-left: auto;
+      background: #0e1522;
+      border: 1px solid var(--line);
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: #c5d0e0;
+      z-index: 20;
+      max-height: 28vh;
+      overflow: auto;
+    }
+    .notes.show { display: block; }
+    .notes b { color: var(--signal); font-weight: 500; }
+    .help {
+      position: fixed; top: 0.7rem; right: 0.9rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.65rem;
+      color: var(--steel);
+      z-index: 10;
+    }
+    @media print {
+      html, body, .stage { height: auto; overflow: visible; background: #000; }
+      .frame { width: 11.5in; height: 6.5in; page-break-after: always; }
+      .slide { position: relative; display: flex !important; break-after: page; }
+      .help, .notes, .chrome { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="help">← → space · F fullscreen · N notes · P print/PDF</div>
+  <div class="stage">
+    <div class="frame" id="frame">
+
+      <!-- 1 -->
+      <section class="slide on" data-sec="01  title" data-notes="Hi — this is Changelog Radar. The earliest public warning about a bad npm package is usually not a CVE. It's a sentence a maintainer already wrote on a web page. We scrape that page while it's still true, and we keep the scraper alive when the layout moves.">
+        <div class="radar-bg"></div>
+        <p class="kicker">Into the Scrape-Verse · Bright Data Scraper Studio</p>
+        <h1>Changelog Radar</h1>
+        <p class="lede">Read what maintainers already wrote — before CVE databases catch up.</p>
+        <p class="meta">package.json → Bright Data scrapes → Zod → signals · heal in place</p>
+      </section>
+
+      <!-- 2 -->
+      <section class="slide" data-sec="02  about" data-notes="If you run Dependabot, Snyk, or npm audit, you are waiting on vulnerability databases. They matter. They are also late. Endor Labs: about 25 days median from a public security release to a public advisory. In 2024 NVD had thousands of CVEs awaiting analysis. Maintainers already wrote the warning on HTML. That's what we read.">
+        <p class="kicker">About the project</p>
+        <h2>CVE feeds are late. The warning is already on the page.</h2>
+        <div class="row row-2" style="margin-top:2rem; flex:1; align-items:stretch;">
+          <div class="card">
+            <p class="mono" style="color:var(--signal); font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;">GitHub Release</p>
+            <p style="font-family:Syne,sans-serif; font-size:1.6rem; margin:0.6rem 0 0.4rem;">Security fix shipped</p>
+            <p style="color:var(--muted);">Maintainer writes it into the release body. Public. Now.</p>
+          </div>
+          <div class="card">
+            <p class="mono" style="color:var(--heal); font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;">NVD / GHSA advisory</p>
+            <p style="font-family:Syne,sans-serif; font-size:1.6rem; margin:0.6rem 0 0.4rem;">Scanner still quiet</p>
+            <p style="color:var(--muted);">Your tool is waiting for a CVE id that does not exist yet.</p>
+          </div>
+        </div>
+        <p class="meta" style="margin-top:1.4rem; color:var(--signal);">~25 days median gap · Endor Labs / CSO Online</p>
+      </section>
+
+      <!-- 3 -->
+      <section class="slide" data-sec="03  about" data-notes="Changelog Radar is a radar for maintainer pages. Paste a package.json. We fan out npm URLs and GitHub Releases. Bright Data collectors fetch the HTML. We don't trust a 200. We demand a typed row. Good row: tag and suggest a bump. Bad row: heal the same collector and scrape again.">
+        <p class="kicker">About the project</p>
+        <h2>A package.json becomes live maintainer-page intelligence.</h2>
+        <div class="pipe">
+          <span class="box">package.json</span><span class="arr">→</span>
+          <span class="box">URLs</span><span class="arr">→</span>
+          <span class="box hi">Bright Data</span><span class="arr">→</span>
+          <span class="box hi">Zod</span><span class="arr">→</span>
+          <span class="box">tags + bumps</span>
+        </div>
+        <div class="row row-2" style="margin-top:2rem;">
+          <ul class="clean">
+            <li><strong>Input</strong> — paste or upload a manifest</li>
+            <li><strong>Action</strong> — scrape npm + GitHub Releases HTML</li>
+            <li><strong>Output</strong> — security / deprecation / breaking / yanked</li>
+            <li><strong>Survival</strong> — Self-Healing on the same collector id</li>
+          </ul>
+          <div>
+            <p style="color:var(--muted); line-height:1.5; font-size:1.02rem;">We do not invent CVEs. We do not replace NVD. We surface the prose maintainers already published — earlier — and we refuse to store empty fields that look like a healthy scrape.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section class="slide" data-sec="04  about" data-notes="Why scrape? The npm API gives a version number. It does not reliably give the banner a maintainer stamped on the page, or the release-notes GitHub actually renders. Selectors rot. HTTP 200 still looks healthy. You think you're watching lodash. You're storing ghosts. Layout drift used to be a ticket. We treat it as a runtime event.">
+        <p class="kicker">About the project</p>
+        <h2>This is a scraping problem. Not an API problem.</h2>
+        <div class="row row-2" style="margin-top:1.6rem;">
+          <div>
+            <p class="mono" style="color:var(--steel); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:0.5rem;">Registry JSON</p>
+            <div class="split-json">{<br />&nbsp;&nbsp;<span class="k">"name"</span>: <span class="s">"lodash"</span>,<br />&nbsp;&nbsp;<span class="k">"version"</span>: <span class="s">"4.17.21"</span><br />}</div>
+            <p style="margin-top:0.7rem; color:var(--steel); font-size:0.85rem;">A number. Not the warning.</p>
+          </div>
+          <div>
+            <p class="mono" style="color:var(--steel); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:0.5rem;">What developers actually read</p>
+            <div class="banner">This package version is deprecated.<br />Security fix in 4.17.21 — prototype pollution.</div>
+            <p style="margin-top:0.7rem; color:var(--muted); font-size:0.95rem;"><span class="tag">notice_text</span> &nbsp; <span class="tag">changelog_excerpt</span><br /><br />live in the DOM. HTTP 200 + empty fields = silent failure.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 -->
+      <section class="slide" data-sec="05  about" data-notes="A good run is quotes, tags, and a bump with a reason — maintainer notes mention a security fix; you are on 1.2.5. If we healed, you get a timeline. That's the hackathon proof. Same payload is available in Cursor via MCP.">
+        <p class="kicker">About the project</p>
+        <h2>What a good run looks like</h2>
+        <div class="row" style="grid-template-columns: 1.15fr 0.85fr; margin-top:1.4rem; gap:1.6rem;">
+          <table>
+            <thead><tr><th>Output</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td>Signals</td><td>security · deprecation · breaking · yanked</td></tr>
+              <tr><td>Suggested bumps</td><td>you are on X → latest on the page is Y</td></tr>
+              <tr><td>Heal timeline</td><td>proof the scraper survived a layout break</td></tr>
+              <tr><td>Watch</td><td>rescan on an interval</td></tr>
+              <tr><td>Cursor MCP</td><td>same audit from the agent</td></tr>
+            </tbody>
+          </table>
+          <div class="mock-card">
+            <p class="mono" style="font-size:0.75rem; color:var(--steel);">npm · minimist</p>
+            <p style="font-family:Syne,sans-serif; font-size:1.35rem; margin:0.35rem 0;">1.2.5 → 1.2.8</p>
+            <span class="tag">security</span>
+            <p style="margin-top:0.8rem; color:var(--muted); font-size:0.88rem; line-height:1.45;">“Prototype pollution advisory. Update immediately.”</p>
+            <p style="margin-top:0.7rem; font-size:0.8rem; color:var(--steel);">Reason: maintainer notes mention a security fix</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 -->
+      <section class="slide" data-sec="06  stack" data-notes="TypeScript monorepo. Next.js UI. Express API that also speaks MCP. Shared package holds Zod, the Bright Data client, and the orchestrator so the UI and the agent cannot drift. Scraping is Scraper Studio, not a proxy. OpenAI is optional and shallow — URL review and a summary. Tags are regexes on purpose.">
+        <p class="kicker">Tech stack</p>
+        <h2>One core. Two doors. Collectors at the bottom.</h2>
+        <div class="layers">
+          <div class="layer"><span class="who">web-ui</span><p>Next.js 15 · React 19 · Tailwind 4 · Framer Motion · React Flow</p></div>
+          <div class="layer"><span class="who">mcp-server</span><p>Express :8787 · MCP stdio · <span class="mono">audit_dependencies</span></p></div>
+          <div class="layer"><span class="who">shared</span><p>Zod schemas · orchestrator · Bright Data client · signal rules</p></div>
+          <div class="layer" style="border-color:var(--signal-dim);"><span class="who">Bright Data</span><p>Scraper Studio DCA · Self-Healing <span class="mono">refactor_template</span> · same <span class="mono">c_…</span></p></div>
+        </div>
+        <p class="meta" style="margin-top:1.2rem;">Optional OpenAI: URL review + summary only. Deploy: Zerops. Mock mode if you have no key.</p>
+      </section>
+
+      <!-- 7 -->
+      <section class="slide" data-sec="07  architecture" data-notes="Walk top to bottom. Parse deps, cap the set, fan out URLs. Orchestrator scrapes npm, then GitHub, optionally chaos. Every row through one schema. Pass: enrich and store. Fail: heal same id, retry. Health chips are first-class: idle, scraping, healing, healthy, failed.">
+        <p class="kicker">Architecture</p>
+        <h2>Fan-out, then a single gate.</h2>
+        <div class="row" style="grid-template-columns: 1.2fr 0.8fr; margin-top:0.6rem;">
+          <div class="flow">
+            <div><b>package.json</b> → parse deps (limit ~12)</div>
+            <div><b>URLs</b> → npmjs.com/package/{name} + GitHub Releases</div>
+            <div><b>Collectors</b> → npm · github_releases · chaos</div>
+            <div><b>Zod</b> → MaintainerSignalSchema</div>
+            <div>OK → tags → bumps → findings store → UI / MCP</div>
+            <div>FAIL → heal same c_… → re-scrape → re-validate</div>
+          </div>
+          <div>
+            <p class="mono" style="font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--steel); margin-bottom:0.7rem;">Collector health</p>
+            <ul class="clean">
+              <li>idle</li>
+              <li>scraping</li>
+              <li style="color:var(--heal);">healing</li>
+              <li style="color:var(--signal);">healthy</li>
+              <li style="color:var(--danger);">failed</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section class="slide" data-sec="08  architecture" data-notes="The design choice I care about most. Most scrapers treat the request worked as success. We treat the row matches the contract as success. Empty changelog_excerpt fails Zod. That failure becomes a heal prompt under 1000 characters, in plain language, so Self-Healing can re-bind to a new DOM instead of frozen CSS.">
+        <p class="kicker">Architecture · the tripwire</p>
+        <h2>HTTP 200 is not health. Zod is.</h2>
+        <div class="row row-2" style="margin-top:1.3rem;">
+          <div class="schema">
+            <span class="dim">MaintainerSignalSchema</span><br />
+            package_name <span class="ok">ok</span><br />
+            url <span class="ok">ok</span><br />
+            latest_version <span class="ok">"4.17.21"</span><br />
+            notice_text <span class="dim">null allowed</span><br />
+            changelog_excerpt <span class="no">""  ← validation_failed</span>
+          </div>
+          <div>
+            <p style="color:var(--muted); line-height:1.5; margin-bottom:1rem;">Then we tag the prose with rules, not an LLM:</p>
+            <ul class="clean">
+              <li><strong>security</strong> — CVE, advisory, patch, RCE…</li>
+              <li><strong>deprecation / yanked</strong> — banners + unpublished</li>
+              <li><strong>breaking</strong> — breaking change, incompatible</li>
+            </ul>
+            <p style="margin-top:1rem; color:var(--muted); font-size:0.95rem;">Fields are described in English so the healer can repair extraction when the layout moves.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 -->
+      <section class="slide" data-sec="09  architecture" data-notes="When the tripwire fires we call Bright Data refactor_template on that collector, auto-approve the diff, scrape again on the same c_ id. Same id is the point. Creating a new collector is cheating. Chaos page: rename .version-number to #ver. First scrape fails. Heal. Retry succeeds. Chip goes orange, then green.">
+        <p class="kicker">Architecture · self-heal</p>
+        <h2>Mutate the collector. Do not mint a new one.</h2>
+        <div class="steps">
+          <article><p class="n">01</p><h3>Zod miss</h3><p>Heal prompt from issue paths, ≤1000 chars, plain language.</p></article>
+          <article><p class="n">02</p><h3>refactor_template</h3><p>POST the same c_… · poll until a template diff.</p></article>
+          <article><p class="n">03</p><h3>Auto-approve</h3><p>resume_automation_job · then re-trigger scrape.</p></article>
+          <article><p class="n">04</p><h3>Re-validate</h3><p>Same schema. Same collector. Timeline in the UI.</p></article>
+          <article><p class="n">05</p><h3>Chaos proof</h3><p>We break our own page: .version-number → #ver.</p></article>
+          <article><p class="n">06</p><h3>Healthy</h3><p>Chip: Healing (orange) → Healthy (green).</p></article>
+        </div>
+      </section>
+
+      <!-- 10 -->
+      <section class="slide" data-sec="10  architecture" data-notes="The UI is how you demo it to a human. MCP is how it shows up in an agent. Both call the same orchestrator. Watch mode is the proactive version. Product shape: reactive audit, proactive watch, self-heal when the page moves, agent entry point.">
+        <p class="kicker">Architecture · surfaces</p>
+        <h2>Two clients. One orchestrator.</h2>
+        <table style="margin-top:1.4rem;">
+          <thead><tr><th>Surface</th><th>How you use it</th></tr></thead>
+          <tbody>
+            <tr><td>Radar UI</td><td>Paste → preview URLs → scan → cards + map</td></tr>
+            <tr><td>Watch</td><td>Interval rescans · findings feed</td></tr>
+            <tr><td>Cursor MCP</td><td>audit_dependencies · get_latest_findings · get_scraper_health · run_chaos_heal_demo</td></tr>
+          </tbody>
+        </table>
+        <p class="lede" style="font-size:1.05rem;">Prompt: <span style="color:var(--text);">Audit my package.json for maintainer warnings before CVE databases catch up.</span></p>
+      </section>
+
+      <!-- 11 -->
+      <section class="slide" data-sec="11  demo" data-notes="I'll run the product. Four beats: landing, a real audit, a forced heal, then the agent. Watch the health chip and the quotes on the cards — that's the whole story. If the network hiccups, these frames are the same path.">
+        <p class="kicker">Demo</p>
+        <h2>Ninety seconds. Four beats.</h2>
+        <div class="row row-4" style="margin-top:1.8rem;">
+          <div class="beat"><span class="n">1</span><p>Landing<br /><span style="color:var(--muted); font-size:0.85rem;">Changelog Radar · Open Radar</span></p></div>
+          <div class="beat"><span class="n">2</span><p>Scan fixture<br /><span style="color:var(--muted); font-size:0.85rem;">lodash · express · minimist…</span></p></div>
+          <div class="beat"><span class="n">3</span><p>Chaos heal<br /><span style="color:var(--muted); font-size:0.85rem;">Healing → Healthy</span></p></div>
+          <div class="beat"><span class="n">4</span><p>Cursor MCP<br /><span style="color:var(--muted); font-size:0.85rem;">same audit_id</span></p></div>
+        </div>
+        <p class="meta" style="margin-top:1.6rem;">Live app: localhost:3000/radar · jump-cut every spinner</p>
+      </section>
+
+      <!-- 12 -->
+      <section class="slide" data-sec="12  demo" data-notes="Open Radar. Sample app is behind on purpose. Scan. Before we spend credits we show the exact URLs. Looks correct — collectors run. Tags on the cards. Suggested bump with a sentence from the maintainer, not a CVE we invented.">
+        <p class="kicker">Demo · audit</p>
+        <h2>Scan → confirm URLs → quotes and bumps.</h2>
+        <div class="row row-3" style="margin-top:1.5rem;">
+          <div class="card">
+            <p class="mono" style="color:var(--steel); font-size:0.72rem;">01 · manifest</p>
+            <p class="mono" style="margin-top:0.6rem; font-size:0.8rem; color:var(--muted); line-height:1.6;">lodash 4.17.20<br />express 4.18.2<br />axios 1.6.0<br />minimist 1.2.5<br />semver 7.5.4</p>
+          </div>
+          <div class="card">
+            <p class="mono" style="color:var(--steel); font-size:0.72rem;">02 · preview</p>
+            <p style="margin-top:0.6rem; color:var(--muted); font-size:0.9rem; line-height:1.5;">npmjs.com/package/…<br />github.com/…/releases<br /><br />Human in the loop before Bright Data runs.</p>
+          </div>
+          <div class="card">
+            <p class="mono" style="color:var(--steel); font-size:0.72rem;">03 · results</p>
+            <p style="margin-top:0.6rem;"><span class="tag">security</span> <span class="tag">deprecation</span></p>
+            <p style="margin-top:0.7rem; color:var(--muted); font-size:0.9rem;">Cards + React Flow map. Same payload as MCP.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13 -->
+      <section class="slide" data-sec="13  demo" data-notes="Chaos heal: we break selectors on a page we host. Zod fails. Chip healing. Bright Data rewrites the template on the same collector. Retry. Healthy. Then Cursor: same structured JSON. The agent and the UI are not two products.">
+        <p class="kicker">Demo · heal + agent</p>
+        <h2>Layout break is a runtime event.</h2>
+        <div class="row row-2" style="margin-top:1.5rem;">
+          <div class="card">
+            <div class="health"><span class="dot"></span> chaos · healing</div>
+            <p class="mono" style="margin-top:1rem; font-size:0.82rem; line-height:1.8; color:var(--muted);">
+              validation_failed<br />
+              heal_started<br />
+              heal_pending_answer<br />
+              heal_approved<br />
+              retry_started<br />
+              <span style="color:var(--signal);">retry_succeeded</span>
+            </p>
+          </div>
+          <div class="card">
+            <div class="health"><span class="dot ok"></span> chaos · healthy</div>
+            <p style="margin-top:1rem; color:var(--muted); line-height:1.5;">Cursor: <span style="color:var(--text);">Audit my package.json for maintainer warnings before CVE databases catch up.</span></p>
+            <p style="margin-top:0.9rem; font-family:IBM Plex Mono,monospace; font-size:0.82rem; color:var(--signal);">tool audit_dependencies → same audit_id</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14 -->
+      <section class="slide" data-sec="14  learning" data-notes="What I actually learned: hollow scrapes are worse than downtime. A typed contract at the boundary is how you notice the page moved. Self-healing only counts on the same collector. MCP forces honest APIs. This is not AI finds vulnerabilities — we are early readers of text maintainers already published.">
+        <p class="kicker">Learning and growth</p>
+        <h2>What building this taught me</h2>
+        <ul class="clean" style="margin-top:1.4rem; max-width:40rem;">
+          <li><strong>Failure is a runtime signal</strong> — not a Jira ticket for next sprint.</li>
+          <li><strong>Schema-first scraping</strong> — Zod is the product, not a nicety.</li>
+          <li><strong>Heal in place</strong> — spawning a new collector hides the problem.</li>
+          <li><strong>One orchestrator, two clients</strong> — if an agent can't consume it, the UI was lying.</li>
+          <li><strong>The window is before the CVE</strong> — not a bigger pile of CVE ids.</li>
+        </ul>
+      </section>
+
+      <!-- 15 -->
+      <section class="slide" data-sec="15  learning" data-notes="If we kept going: more package ecosystems, persistence so watch survives a restart, smarter npm-to-GitHub mapping, and a scheduled chaos suite so we know healing still works. North star stays the same: maintainer prose, now, with a scraper that doesn't go hollow.">
+        <p class="kicker">Learning · next</p>
+        <h2>If this kept going</h2>
+        <div class="row row-2" style="margin-top:1.6rem;">
+          <ul class="clean">
+            <li>PyPI / crates / Maven maintainer pages</li>
+            <li>Durable findings store — not in-memory</li>
+            <li>Better GitHub repo resolution from npm</li>
+          </ul>
+          <ul class="clean">
+            <li>Heal evals: break fixtures on a schedule</li>
+            <li>Watch as a real always-on service</li>
+            <li>Keep tags deterministic — no mystery scores</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 16 -->
+      <section class="slide" data-sec="16  close" data-notes="CVE feeds will catch up. Until they do, the warning is already on the page. We scrape that page. Zod tells us if we actually got it. Bright Data heals the collector when the layout moves. Happy to take questions — especially on the heal loop or why we didn't just call the npm API.">
+        <div class="radar-bg"></div>
+        <p class="kicker">Changelog Radar</p>
+        <h1 style="font-size:clamp(2rem,4.6vw,3.6rem); max-width:16ch;">Read the page.<br />Trust the schema.<br />Heal in place.</h1>
+        <ul class="clean" style="margin-top:1.6rem; max-width:32rem;">
+          <li>Not a CVE database</li>
+          <li>Not a frozen-CSS scraper</li>
+          <li>A Scraper Studio product that survives layout drift</li>
+        </ul>
+        <p class="meta">questions · especially the heal loop</p>
+      </section>
+
+    </div>
+  </div>
+  <div class="chrome"><span id="sec">01  title</span><span id="pg">1 / 16</span></div>
+  <div class="bar" id="bar"></div>
+  <aside class="notes" id="notes"></aside>
+
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    const notesEl = document.getElementById("notes");
+    const pg = document.getElementById("pg");
+    const sec = document.getElementById("sec");
+    const bar = document.getElementById("bar");
+    let i = 0;
+    let notesOn = false;
+
+    function show(n) {
+      i = (n + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle("on", k === i));
+      pg.textContent = (i + 1) + " / " + slides.length;
+      sec.textContent = slides[i].dataset.sec || "";
+      bar.style.width = ((i + 1) / slides.length * 100) + "%";
+      notesEl.innerHTML = "<b>Script</b> — " + (slides[i].dataset.notes || "");
+      history.replaceState(null, "", "#" + (i + 1));
+    }
+    function next() { show(i + 1); }
+    function prev() { show(i - 1); }
+
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowRight", "ArrowDown", " ", "PageDown"].includes(e.key)) { e.preventDefault(); next(); }
+      if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); prev(); }
+      if (e.key === "n" || e.key === "N") notesEl.classList.toggle("show");
+      if (e.key === "f" || e.key === "F") {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      }
+      if (e.key === "p" || e.key === "P") window.print();
+      if (e.key === "Home") show(0);
+      if (e.key === "End") show(slides.length - 1);
+    });
+    document.getElementById("frame").addEventListener("click", (e) => {
+      if (e.target.closest("a")) return;
+      if (e.clientX < window.innerWidth * 0.22) prev();
+      else next();
+    });
+    const start = parseInt(location.hash.slice(1), 10);
+    show(Number.isFinite(start) && start >= 1 ? start - 1 : 0);
+  </script>
+</body>
+</html>

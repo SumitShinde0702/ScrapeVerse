@@ -305,9 +305,11 @@ export function RadarApp() {
                   {headline(grouped)}
                 </h1>
                 <p className="mt-1 text-sm text-[var(--muted)]">
-                  {mock
-                    ? "Mock mode — canned maintainer notes so you can demo without Bright Data."
-                    : "Live scrape of npm and GitHub release pages."}
+                  {error
+                    ? "Scrape did not return rows. Check collector IDs, or set CHANGELOG_RADAR_MOCK=1."
+                    : mock
+                      ? "Mock mode — canned maintainer notes so you can demo without Bright Data."
+                      : "Live scrape of npm and GitHub release pages."}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -378,7 +380,9 @@ export function RadarApp() {
               ))}
               {!filteredGroups.length && (
                 <p className="rounded-xl border border-[var(--line)] px-3 py-8 text-center text-[var(--muted)]">
-                  No packages in this filter.
+                  {error
+                    ? "Nothing to show — collectors are missing, so live scrape returned no rows."
+                    : "No packages in this filter."}
                 </p>
               )}
             </div>

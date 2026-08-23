@@ -1,10 +1,47 @@
 # Changelog Radar
 
+[![CI](https://github.com/SumitShinde0702/ScrapeVerse/actions/workflows/ci.yml/badge.svg)](https://github.com/SumitShinde0702/ScrapeVerse/actions/workflows/ci.yml)
+![Node 20+](https://img.shields.io/badge/node-%3E%3D20-3dff9a)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
+![Zod at edges](https://img.shields.io/badge/validation-Zod-8b5cf6)
+
 **Read what maintainers already wrote — before CVE databases catch up.**
 
 Changelog Radar turns a `package.json` into live scrapes of npm package pages and GitHub Releases. It tags security / deprecation / breaking signals from that HTML, suggests version bumps, and when a site layout breaks the scraper, **Bright Data Self-Healing** repairs the same collector and retries.
 
 Built for the [Into the Scrape-Verse](https://www.wemakedevs.org/hackathons/scrape-verse) hackathon (Bright Data Scraper Studio).
+
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&center=true&width=620&lines=Paste+package.json;Preview+scrape+URLs;Bright+Data+scrapes+maintainer+pages;Zod+tripwire+%E2%86%92+Self-Heal+%E2%86%92+retry;Structured+signals+%2B+bump+suggestions" alt="Changelog Radar flow" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/flow.svg" alt="Pipeline diagram" width="720" />
+</p>
+
+---
+
+## Monday-morning pickup (60 seconds)
+
+A stranger should be productive in one terminal:
+
+```bash
+git clone https://github.com/SumitShinde0702/ScrapeVerse.git
+cd ScrapeVerse
+npm run setup
+npm run dev
+```
+
+| Step | What happens |
+|------|----------------|
+| `npm run setup` | Creates `.env`, installs deps, copies hero assets, builds `shared` |
+| `npm run dev` | API on `:8787` + UI on `:3000` |
+| `npm run verify` | Same **typecheck + build** as GitHub Actions CI |
+
+**Coding agents:** read [AGENTS.md](AGENTS.md) — conventions, layout, proof commands.  
+**Humans:** [CONTRIBUTING.md](CONTRIBUTING.md) — PR checklist, code style.
+
+Live Bright Data after setup: `npm run setup:live` → fill token + `c_…` IDs in `.env` → [docs/setup-collectors.md](docs/setup-collectors.md).
 
 ---
 
@@ -163,9 +200,14 @@ Scraper Studio collectors: npm | github_releases | chaos
 Use this to try the product flow with canned maintainer notes.
 
 ```bash
-cp .env.example .env
-# CHANGELOG_RADAR_MOCK=1  (or leave BRIGHT_DATA_API_TOKEN empty)
+npm run setup
+npm run dev
+```
 
+Or manually:
+
+```bash
+cp .env.example .env
 npm install
 copy public\moon-walk\moon-walk\moon-walk.mp4 web-ui\public\moon-walk.mp4
 copy public\moon-walk\moon-walk\moon-walk.jpg web-ui\public\moon-walk.jpg
@@ -259,3 +301,15 @@ See [docs/DEMO.md](docs/DEMO.md).
 | Wait for CVE / NVD enrichment | Read maintainer HTML **now** |
 | CSS scrapers go hollow on restyle | Zod tripwire + Bright Data heal **in place** |
 | Opaque “audit” dumps | Clear flow: manifest → URLs → scrape → warnings + bumps |
+| “Works on my machine” | `npm run setup` + CI `verify` + [AGENTS.md](AGENTS.md) |
+
+## Repo hygiene (Clean Code)
+
+| Artifact | Purpose |
+|----------|---------|
+| [AGENTS.md](AGENTS.md) | LLM / Cursor agent conventions |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Human contributor guide |
+| [scripts/setup.mjs](scripts/setup.mjs) | Cross-platform bootstrap |
+| [scripts/verify.mjs](scripts/verify.mjs) | Local CI parity |
+| [.github/workflows/ci.yml](.github/workflows/ci.yml) | Typecheck + build on every push |
+| `.editorconfig` / `.nvmrc` | Consistent formatting + Node 20 |

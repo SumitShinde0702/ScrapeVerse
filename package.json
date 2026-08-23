@@ -9,6 +9,9 @@
     "web-ui"
   ],
   "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "setup:live": "node scripts/setup.mjs --live",
+    "verify": "node scripts/verify.mjs",
     "build": "npm run build -w @changelog-radar/shared && npm run build -w @changelog-radar/mcp-server && npm run build -w @changelog-radar/web-ui",
     "dev": "npm run build -w @changelog-radar/shared && concurrently -n api,ui -c cyan,magenta npm:dev:api npm:dev:ui",
     "dev:api": "npm run dev -w @changelog-radar/mcp-server",
