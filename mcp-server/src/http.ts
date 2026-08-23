@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { parsePackageJson } from "@changelog-radar/shared";
+import { parsePackageJson, type DepRef } from "@changelog-radar/shared";
 import cors from "cors";
 import express from "express";
 import {
@@ -68,7 +68,7 @@ app.post("/api/preview", async (req, res) => {
 
     const deps: PreviewDep[] = parsePackageJson(packageJson)
       .slice(0, Number.isFinite(limit) ? limit : 12)
-      .map((d) => ({
+      .map((d: DepRef) => ({
         name: d.name,
         version: d.version,
         npmUrl: d.npmUrl,

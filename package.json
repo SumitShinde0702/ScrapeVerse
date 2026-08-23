@@ -19,7 +19,7 @@
     "dev:mcp": "npm run start -w @changelog-radar/mcp-server",
     "prove:live": "npm run prove:live -w @changelog-radar/mcp-server",
     "prove:heal": "npm run prove:heal -w @changelog-radar/mcp-server",
-    "typecheck": "npm run typecheck -w @changelog-radar/shared && npm run typecheck -w @changelog-radar/mcp-server"
+    "typecheck": "npm run build -w @changelog-radar/shared && npm run typecheck -w @changelog-radar/shared && npm run typecheck -w @changelog-radar/mcp-server"
   },
   "engines": {
     "node": ">=20"

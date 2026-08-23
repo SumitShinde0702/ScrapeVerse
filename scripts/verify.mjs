@@ -16,7 +16,26 @@ function run(label, cmd, args) {
   if (r.status !== 0) process.exit(r.status ?? 1);
 }
 
-run("typecheck shared + mcp-server", "npm", ["run", "typecheck"]);
-run("typecheck web-ui", "npx", ["tsc", "-p", "web-ui/tsconfig.json", "--noEmit"]);
-run("build all packages", "npm", ["run", "build"]);
+// mcp-server imports @changelog-radar/shared via dist/*.d.ts — build shared first.
+run("build shared (workspace type declarations)", "npm", [
+  "run",
+  "build",
+  "-w",
+  "@changelog-radar/shared",
+]);
+run("typecheck shared", "npm", ["run", "typecheck", "-w", "@changelog-radar/shared"]);
+run("typecheck mcp-server", "npm", [
+  "run",
+  "typecheck",
+  "-w",
+  "@changelog-radar/mcp-server",
+]);
+run("typecheck web-ui", "npx", [
+  "tsc",
+  "-p",
+  "web-ui/tsconfig.json",
+  "--noEmit",
+]);
+run("build mcp-server", "npm", ["run", "build", "-w", "@changelog-radar/mcp-server"]);
+run("build web-ui", "npm", ["run", "build", "-w", "@changelog-radar/web-ui"]);
 console.log("\n\x1b[32m[verify]\x1b[0m OK");

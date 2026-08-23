@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Orchestrator } from "@changelog-radar/shared";
+import { Orchestrator, type HealEvent } from "@changelog-radar/shared";
 import dotenv from "dotenv";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -36,7 +36,9 @@ const payload = { before, after, mock: orch.client.mock };
 const outFile = path.join(outDir, `heal-${stamp}.json`);
 await fs.writeFile(outFile, JSON.stringify(payload, null, 2), "utf8");
 
-const healed = after.heal_events.some((e) => e.stage === "retry_succeeded");
+const healed = after.heal_events.some(
+  (e: HealEvent) => e.stage === "retry_succeeded",
+);
 console.log(`Wrote ${outFile}`);
 console.log(`heal_events=${after.heal_events.length} retry_succeeded=${healed}`);
 if (!healed && after.heal_events.length === 0) {

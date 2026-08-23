@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Orchestrator } from "@changelog-radar/shared";
+import { Orchestrator, type MaintainerSignal } from "@changelog-radar/shared";
 import dotenv from "dotenv";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -25,7 +25,7 @@ const stamp = new Date().toISOString().replace(/[:.]/g, "-");
 const outFile = path.join(outDir, `live-${stamp}.json`);
 await fs.writeFile(outFile, JSON.stringify(result, null, 2), "utf8");
 
-const sources = new Set(result.signals.map((s) => s.source));
+const sources = new Set(result.signals.map((s: MaintainerSignal) => s.source));
 console.log(`Wrote ${outFile}`);
 console.log(`mock=${orch.client.mock}`);
 console.log(`sources=${[...sources].join(",")}`);
